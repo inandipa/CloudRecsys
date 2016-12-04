@@ -47,8 +47,6 @@ fs.readFile('OutputFiles/BX-Books.csv', 'utf8', function (err,data) {
         var book = lines[line].match("^\"(.*?)\"\;");
         if(image != null && book!=null)
         Books[book[1]] = "http"+image[1]+"MZZZZZZZ.jpg";
-        
-        
     }
     console.log(Books);
 });
