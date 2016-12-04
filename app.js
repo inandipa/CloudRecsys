@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var Rec = {};
 var Books = {};
+var Ratings = {};
 
 fs.readFile('OutputFiles/recomendations', 'utf8', function (err,data) {
   if (err) {
@@ -43,13 +44,42 @@ fs.readFile('OutputFiles/BX-Books.csv', 'utf8', function (err,data) {
   }
     var lines = data.split('\n');
     for(var line = 0; line < lines.length; line++){
-        var image = lines[line].match("http(.*?)MZZZZZZZ");
+        var image = lines[line].match("http(.*?)THUMBZZZ");
         var book = lines[line].match("^\"(.*?)\"\;");
         if(image != null && book!=null)
         Books[book[1]] = "http"+image[1]+"MZZZZZZZ.jpg";
+       
     }
+    
     console.log(Books);
 });
+
+
+fs.readFile('OutputFiles/BX-Book-Ratings.csv', 'utf8', function (err,data) {
+  if (err) {
+    return console.log(err);
+  }
+    var lines = data.split('\n');
+    for(var line = 0; line < lines.length; line++){
+        var book,user,rating
+        
+        var ratings = lines[line].match(/\"(.*?)\"/g);
+        if(ratings != null){
+            user = ratings[0].slice(1, -1);
+            book = ratings[1].slice(1, -1);
+            rating = ratings[2].slice(1, -1);
+        if( Ratings[user] != null){
+            var data = Ratings[user];
+            data.push({bookid : book , rating : rating})
+        }else{
+            Ratings[user] = [{bookid : book , rating : rating}]
+        }
+        }
+    }
+    
+    console.log(Ratings);
+});
+
 
 var users = require('./routes/users');
 
@@ -67,8 +97,33 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', function(req,res){
-    res.jsonp({data : {Recomendations : Rec , Books : Books}});
+app.get('/', function(req,res){
+    RecList = [];
+    BoughtList = [];
+    user = req.query.username;
+    if(Rec[user] != null){
+        var rec = Rec[user]
+        console.log(rec);
+        for (var i = 0 ; i<rec.length ; i++){
+        console.log(rec[i].book);
+        var bookid = rec[i].book
+        console.log(Books[bookid]);
+        console.log(rec[i].rating);
+        RecList.push({book:bookid, image: Books[bookid],rating :rec[i].rating })
+       }
+    }
+    if(Ratings[user] != null){
+        var rec = Ratings[user]
+        console.log(rec);
+        for (var i = 0 ; i<rec.length ; i++){
+        var bookid = rec[i].bookid
+        console.log(Books[bookid]);
+        console.log(rec[i].rating);
+        BoughtList.push({book:bookid, image: Books[bookid],rating :rec[i].rating })
+       }
+    }
+     res.jsonp( {Rec: RecList , Bought :BoughtList })
+   
 });
 app.use('/users', users);
 
