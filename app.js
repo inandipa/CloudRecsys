@@ -8,15 +8,16 @@ var fs = require('fs');
 var Rec = {};
 var Books = {};
 var Ratings = {};
+var readline = require('readline');
+var stream = require('stream');
 
-fs.readFile('OutputFiles/recomendations', 'utf8', function (err,data) {
-  if (err) {
-    return console.log(err);
-  }
-    var lines = data.split('\n');
-    for(var line = 0; line < lines.length; line++){
-        var user = lines[line].match("u\'(.*?)\'");
-        var list = lines[line].match("\\[(.*?)\\]");
+var instream = fs.createReadStream('OutputFiles/recomendations');
+var outstream = new stream;
+var rl = readline.createInterface(instream, outstream);
+
+rl.on('line', function(line) {
+        var user = line.match("u\'(.*?)\'");
+        var list = line.match("\\[(.*?)\\]");
         List = [];
         if(user != null && list[1] != ""){
             //console.log(user[1]+"and"+list[1]);
@@ -33,32 +34,35 @@ fs.readFile('OutputFiles/recomendations', 'utf8', function (err,data) {
             }
              Rec[user[1]] = List;
         }
-   }
-     console.log(Rec);
-    fs.readFile('OutputFiles/BX-Books.csv', 'utf8', function (err,data) {
-  if (err) {
-    return console.log(err);
-  }
-    var lines = data.split('\n');
-    for(var line = 0; line < lines.length; line++){
-        var image = lines[line].match("http(.*?)THUMBZZZ");
-        var book = lines[line].match("^\"(.*?)\"\;");
+});
+
+rl.on('close', function() {
+  // do something on finish here
+    console.log(Rec);
+    
+    var instream = fs.createReadStream('OutputFiles/BX-Books.csv');
+var outstream = new stream;
+var rla = readline.createInterface(instream, outstream);
+
+rla.on('line', function(line) {
+        var image = line.match("http(.*?)THUMBZZZ");
+        var book = line.match("^\"(.*?)\"\;");
         if(image != null && book!=null)
         Books[book[1]] = "http"+image[1]+"MZZZZZZZ.jpg";
-       
-    }
-    
-    console.log(Books);
 });
-    fs.readFile('OutputFiles/BX-Book-Ratings.csv', 'utf8', function (err,data) {
-  if (err) {
-    return console.log(err);
-  }
-    var lines = data.split('\n');
-    for(var line = 0; line < lines.length; line++){
-        var book,user,rating
+
+rla.on('close', function() {
+  console.log(Books);
+    
+    
+      var instream = fs.createReadStream('OutputFiles/BX-Book-Ratings.csv');
+var outstream = new stream;
+var rlb = readline.createInterface(instream, outstream);
+
+rlb.on('line', function(line) {
+         var book,user,rating
         
-        var ratings = lines[line].match(/\"(.*?)\"/g);
+        var ratings = line.match(/\"(.*?)\"/g);
         if(ratings != null){
             user = ratings[0].slice(1, -1);
             book = ratings[1].slice(1, -1);
@@ -70,17 +74,19 @@ fs.readFile('OutputFiles/recomendations', 'utf8', function (err,data) {
             Ratings[user] = [{bookid : book , rating : rating}]
         }
         }
-    }
+});
+
+rlb.on('close', function() {
+  console.log(Ratings);
+});
+
+
+});
+
     
-    console.log(Ratings);
+    
+    
 });
-
-});
-
-
-
-
-
 
 
 var users = require('./routes/users');
