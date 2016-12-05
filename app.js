@@ -35,10 +35,7 @@ fs.readFile('OutputFiles/recomendations', 'utf8', function (err,data) {
         }
    }
      console.log(Rec);
-});
-
-
-fs.readFile('OutputFiles/BX-Books.csv', 'utf8', function (err,data) {
+    fs.readFile('OutputFiles/BX-Books.csv', 'utf8', function (err,data) {
   if (err) {
     return console.log(err);
   }
@@ -53,9 +50,7 @@ fs.readFile('OutputFiles/BX-Books.csv', 'utf8', function (err,data) {
     
     console.log(Books);
 });
-
-
-fs.readFile('OutputFiles/BX-Book-Ratings.csv', 'utf8', function (err,data) {
+    fs.readFile('OutputFiles/BX-Book-Ratings.csv', 'utf8', function (err,data) {
   if (err) {
     return console.log(err);
   }
@@ -79,6 +74,13 @@ fs.readFile('OutputFiles/BX-Book-Ratings.csv', 'utf8', function (err,data) {
     
     console.log(Ratings);
 });
+
+});
+
+
+
+
+
 
 
 var users = require('./routes/users');
